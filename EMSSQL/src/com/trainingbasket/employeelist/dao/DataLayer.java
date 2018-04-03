@@ -3,32 +3,27 @@
  */
 package com.trainingbasket.employeelist.dao;
 
-import javax.sql.*;
-
-
 import com.trainingbasket.employeelist.bean.Employee;
-
+import com.trainingbasket.employeelist.dao.DAOConstants;
 import java.sql.*;
-import java.util.Date;
+import java.util.List;
 
 /**
  * @author OpenSource
  *
  */
 public class DataLayer {
-
-	// Create a variable for the connection string.
-	String connectionUrl = "jdbc:sqlserver://localhost:1433;" + "databaseName=Employee;user=sa;password=pass@123";
-
-	// Declare the JDBC objects.
-	Connection con = null;
-	Statement stmt = null;
-	int rs;
+	String connectionUrl = DAOConstants.connectionUrlBase + DAOConstants.databaseName + DAOConstants.user
+			+ DAOConstants.password;
+	Connection sqlConnection = null;
+	Statement sqlStatement = null;
+	ResultSet resultSet = null;
+	int insertResult;
 
 	public DataLayer() {
 		try {
-			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-			con = DriverManager.getConnection(connectionUrl);
+			Class.forName(DAOConstants.sqlDriverName);
+			sqlConnection = DriverManager.getConnection(connectionUrl);
 		} catch (Exception e) {
 			e.printStackTrace(System.out);
 		}
@@ -36,55 +31,54 @@ public class DataLayer {
 
 	public int savEmployee(Employee employee) {
 		try {
-			// Establish the connection.
-			// Create and execute an SQL statement that returns some data.
-			String SQL = "INSERT INTO [dbo].[Employee]" + "           ([FirstName]" + "           ,[LastName]"
-					+ "           ,[Designation]" + "           ,[ContactNumer]" + "           ,[Salary]"
-					+ "           ,[DateOfBirth]" + "           ,[DateOfJoining])"
-					+ "     								VALUES" + "('" + employee.getFirstName() + "','"
+			String SQL = DAOConstants.insertForEmployee + "VALUES" + "('" + employee.getFirstName() + "','"
 					+ employee.getLastName() + "','" + employee.getDesignation() + "','" + employee.getContactNumber()
 					+ "','" + employee.getSalary() + "','" + employee.getDateOfBirth() + "','"
 					+ employee.getDateOfJoining() + "')";
-
-			stmt = con.createStatement();
-			rs = stmt.executeUpdate(SQL);
-
-		}
-
-		// Handle any errors that may have occurred.
-		catch (Exception e) {
+			sqlStatement = sqlConnection.createStatement();
+			insertResult = sqlStatement.executeUpdate(SQL);
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-
-		finally {
-			if (stmt != null)
+		} finally {
+			if (sqlStatement != null)
 				try {
-					stmt.close();
+					sqlStatement.close();
 				} catch (Exception e) {
 				}
-			if (con != null)
+			if (sqlConnection != null)
 				try {
-					con.close();
+					sqlConnection.close();
 				} catch (Exception e) {
 				}
 		}
-		System.out.println(rs + "Data Has been Inserted");
-		return rs;
+		System.out.println(insertResult + "Row Was Inserted Successfully");
+		return insertResult;
 	}
-/*
-	@SuppressWarnings("deprecation")
-	public static void main(String... strings) {
 
-		Employee employee = new Employee();
-		employee.setFirstName("Drj");
-		employee.setLastName("Sng");
-		employee.setDesignation("SSE");
-		
-		employee.setSalary(123D);
-		employee.setContactNumber(1234D);
-		employee.setDateOfBirth("12-1-1989");
-		employee.setDateOfJoining("12-1-1989");
-		new DataLayer().savEmployee(employee);
-	}*/
+	/*public List<Employee> getAllEmployess() {
+		try {
+			Employee employee = new Employee();
+			sqlStatement = sqlConnection.createStatement();
+			resultSet = sqlStatement.executeQuery(DAOConstants.selectAllEmployees);
+			while (resultSet.next()) {
+				employee.setEmployeeId((Integer)resultSet.getString("EmployeeID"));
+			}
 
-}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (sqlStatement != null)
+				try {
+					sqlStatement.close();
+				} catch (Exception e) {
+				}
+			if (sqlConnection != null)
+				try {
+					sqlConnection.close();
+				} catch (Exception e) {
+				}
+		}
+		System.out.println(insertResult + "Row Was Inserted Successfully");
+		return insertResult;
+	}
+*/}
